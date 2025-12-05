@@ -1,11 +1,13 @@
 import http from 'http';
-import https from 'https';
 import { URL } from 'url';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import log from '../src/utils/logger.js';
+import axios from 'axios';
+import config from '../src/config/config.js';
+import { generateProjectId } from '../src/utils/idGenerator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,47 +38,54 @@ function generateAuthUrl(port) {
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
-function exchangeCodeForToken(code, port) {
-  return new Promise((resolve, reject) => {
-    const postData = new URLSearchParams({
-      code: code,
-      client_id: CLIENT_ID,
-      redirect_uri: `http://localhost:${port}/oauth-callback`,
-      grant_type: 'authorization_code'
-    });
-    
-    if (CLIENT_SECRET) {
-      postData.append('client_secret', CLIENT_SECRET);
-    }
-    
-    const data = postData.toString();
-    
-    const options = {
-      hostname: 'oauth2.googleapis.com',
-      path: '/token',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(data)
-      }
+function getAxiosConfig() {
+  const axiosConfig = { timeout: config.timeout };
+  if (config.proxy) {
+    const proxyUrl = new URL(config.proxy);
+    axiosConfig.proxy = {
+      protocol: proxyUrl.protocol.replace(':', ''),
+      host: proxyUrl.hostname,
+      port: parseInt(proxyUrl.port)
     };
-    
-    const req = https.request(options, (res) => {
-      let body = '';
-      res.on('data', chunk => body += chunk);
-      res.on('end', () => {
-        if (res.statusCode === 200) {
-          resolve(JSON.parse(body));
-        } else {
-          reject(new Error(`HTTP ${res.statusCode}: ${body}`));
-        }
-      });
-    });
-    
-    req.on('error', reject);
-    req.write(data);
-    req.end();
+  }
+  return axiosConfig;
+}
+
+async function exchangeCodeForToken(code, port) {
+  const postData = new URLSearchParams({
+    code,
+    client_id: CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+    redirect_uri: `http://localhost:${port}/oauth-callback`,
+    grant_type: 'authorization_code'
   });
+  
+  const response = await axios({
+    method: 'POST',
+    url: 'https://oauth2.googleapis.com/token',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    data: postData.toString(),
+    ...getAxiosConfig()
+  });
+  
+  return response.data;
+}
+
+async function fetchProjectId(accessToken) {
+  const response = await axios({
+    method: 'POST',
+    url: 'https://daily-cloudcode-pa.sandbox.googleapis.com/v1internal:loadCodeAssist',
+    headers: {
+      'Host': 'daily-cloudcode-pa.sandbox.googleapis.com',
+      'User-Agent': 'antigravity/1.11.9 windows/amd64',
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'Accept-Encoding': 'gzip'
+    },
+    data: JSON.stringify({ metadata: { ideType: 'ANTIGRAVITY' } }),
+    ...getAxiosConfig()
+  });
+  return response.data?.cloudaicompanionProject;
 }
 
 const server = http.createServer((req, res) => {
@@ -89,13 +98,40 @@ const server = http.createServer((req, res) => {
     
     if (code) {
       log.info('收到授权码，正在交换 Token...');
-      exchangeCodeForToken(code, port).then(tokenData => {
+      exchangeCodeForToken(code, port).then(async (tokenData) => {
         const account = {
           access_token: tokenData.access_token,
           refresh_token: tokenData.refresh_token,
           expires_in: tokenData.expires_in,
           timestamp: Date.now()
         };
+        
+        if (config.skipProjectIdFetch) {
+          account.projectId = generateProjectId();
+          account.enable = true;
+          log.info('已跳过API验证，使用随机生成的projectId: ' + account.projectId);
+        } else {
+          log.info('正在验证账号资格...');
+          try {
+            const projectId = await fetchProjectId(account.access_token);
+            if (projectId === undefined) {
+              log.warn('该账号无资格使用（无法获取projectId），已跳过保存');
+              res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+              res.end('<h1>账号无资格</h1><p>该账号无法获取projectId，未保存。</p>');
+              setTimeout(() => server.close(), 1000);
+              return;
+            }
+            account.projectId = projectId;
+            account.enable = true;
+            log.info('账号验证通过');
+          } catch (err) {
+            log.error('验证账号资格失败:', err.message);
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end('<h1>验证失败</h1><p>无法验证账号资格，请查看控制台。</p>');
+            setTimeout(() => server.close(), 1000);
+            return;
+          }
+        }
         
         let accounts = [];
         try {
@@ -116,7 +152,6 @@ const server = http.createServer((req, res) => {
         fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(accounts, null, 2));
         
         log.info(`Token 已保存到 ${ACCOUNTS_FILE}`);
-        //log.info(`过期时间: ${account.expires_in}秒`);
         
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end('<h1>授权成功！</h1><p>Token 已保存，可以关闭此页面。</p>');

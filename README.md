@@ -12,6 +12,8 @@
 - ✅ API Key 认证
 - ✅ 思维链（Thinking）输出
 - ✅ 图片输入支持（Base64 编码）
+- ✅ 图片生成支持（大/小香蕉 模型）
+- ✅ Pro 账号随机 ProjectId 支持
 
 ## 环境要求
 
@@ -149,6 +151,21 @@ curl http://localhost:8045/v1/chat/completions \
 - GIF (`data:image/gif;base64,...`)
 - WebP (`data:image/webp;base64,...`)
 
+### 图片生成示例
+
+支持使用 大/小香蕉 模型生成图片，生成的图片会以 Markdown 格式返回：
+
+```bash
+curl http://localhost:8045/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-text" \
+  -d '{
+    "model": "gemimi-3.0-pro-image",
+    "messages": [{"role": "user", "content": "画一只可爱的猫"}],
+    "stream": false
+  }'
+```
+
 ## 多账号管理
 
 `data/accounts.json` 支持多个账号，服务会自动轮换使用：
@@ -190,10 +207,11 @@ curl http://localhost:8045/v1/chat/completions \
 | `DEFAULT_TOP_P` | 默认 top_p | 0.85 |
 | `DEFAULT_TOP_K` | 默认 top_k | 50 |
 | `DEFAULT_MAX_TOKENS` | 默认最大 token 数 | 8096 |
-| `USE_NATIVE_FETCH` | 使用原生 axios | false |
+| `USE_NATIVE_AXIOS` | 使用原生 axios | false |
 | `TIMEOUT` | 请求超时时间（毫秒） | 30000 |
 | `PROXY` | 代理地址 | - |
 | `SYSTEM_INSTRUCTION` | 系统提示词 | - |
+| `SKIP_PROJECT_ID_FETCH` | 跳过 API 获取 ProjectId，直接随机生成（Pro 账号可用） | false |
 
 完整配置示例请参考 `.env.example` 文件。
 
@@ -244,6 +262,21 @@ npm run login
 ├── .env.example            # 环境变量配置示例
 └── package.json            # 项目配置
 ```
+
+## Pro 账号随机 ProjectId
+
+对于 Pro 订阅账号，可以跳过 API 验证直接使用随机生成的 ProjectId：
+
+1. 在 `.env` 文件中设置：
+```env
+SKIP_PROJECT_ID_FETCH=true
+```
+
+2. 运行 `npm run login` 登录时会自动使用随机生成的 ProjectId
+
+3. 已有账号也会在使用时自动生成随机 ProjectId
+
+注意：此功能仅适用于 Pro 订阅账号。官方已修复免费账号使用随机 ProjectId 的漏洞。
 
 ## 注意事项
 

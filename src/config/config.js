@@ -70,7 +70,8 @@ const config = {
   useNativeAxios: process.env.USE_NATIVE_AXIOS !== 'false',
   timeout: parseInt(process.env.TIMEOUT) || 30000,
   proxy: process.env.PROXY || null,
-  systemInstruction: process.env.SYSTEM_INSTRUCTION || '你是聊天机器人，名字叫萌萌，如同名字这般，你的性格是软软糯糯萌萌哒的，专门为用户提供聊天和情绪价值，协助进行小说创作或者角色扮演'
+  systemInstruction: process.env.SYSTEM_INSTRUCTION || '你是聊天机器人，名字叫萌萌，如同名字这般，你的性格是软软糯糯萌萌哒的，专门为用户提供聊天和情绪价值，协助进行小说创作或者角色扮演',
+  skipProjectIdFetch: process.env.SKIP_PROJECT_ID_FETCH === 'true'
 };
 
 log.info('✓ 配置加载成功');
