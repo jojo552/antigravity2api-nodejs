@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SPW公益站 - 反重力凭证捐赠</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 168, 67, 0.03) 0%, transparent 50%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        .container {
+            background: linear-gradient(145deg, rgba(42, 42, 42, 0.95), rgba(30, 30, 30, 0.98));
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #d4a843, #f0c674, #d4a843);
+            border-radius: 16px 16px 0 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #d4a843 0%, #f0c674 50%, #d4a843 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            text-shadow: 0 0 30px rgba(212, 168, 67, 0.3);
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #aaa;
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+        .step {
+            margin-bottom: 28px;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        .step:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(212, 168, 67, 0.2);
+        }
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f0c674;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .step-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: linear-gradient(180deg, #d4a843, #f0c674);
+            border-radius: 2px;
+        }
+        .step-desc {
+            font-size: 0.95rem;
+            color: #ddd;
+            margin-bottom: 14px;
+            line-height: 1.7;
+        }
+        .step-desc .highlight-red {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+        .step-desc .highlight-green {
+            color: #51cf66;
+            font-weight: 600;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 16px 24px;
+            background: rgba(80, 80, 80, 0.5);
+            color: #888;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+        }
+        .btn-submit.active {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .btn-submit.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 239, 125, 0.5);
+        }
+        .url-input {
+            width: 100%;
+            padding: 16px 18px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .url-input::placeholder {
+            color: #777;
+        }
+        .url-input:focus {
+            outline: none;
+            border-color: rgba(79, 172, 254, 0.5);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            background: rgba(0,0,0,0.4);
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 10px;
+            display: none;
+            font-weight: 500;
+        }
+        .result-box.success {
+            background: rgba(81, 207, 102, 0.15);
+            border: 1px solid rgba(81, 207, 102, 0.5);
+            color: #51cf66;
+        }
+        .result-box.error {
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid rgba(255, 107, 107, 0.5);
+            color: #ff6b6b;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .loading-overlay.show {
+            display: flex;
+        }
+        .loading-content {
+            background: linear-gradient(145deg, rgba(42, 42, 42, 0.95), rgba(30, 30, 30, 0.98));
+            padding: 32px 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(79, 172, 254, 0.2);
+            border-top-color: #4facfe;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(8px);
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-box {
+            background: linear-gradient(145deg, rgba(42, 42, 42, 0.98), rgba(30, 30, 30, 0.99));
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 520px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .modal-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            border-radius: 16px 16px 0 0;
+        }
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #888;
+            font-size: 1.3rem;
+            cursor: pointer;
+            line-height: 1;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.2);
+        }
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+        .modal-text {
+            font-size: 0.95rem;
+            color: #ccc;
+            line-height: 1.9;
+            margin-bottom: 18px;
+        }
+        .modal-text .highlight-blue {
+            color: #4facfe;
+            font-weight: 600;
+        }
+        .modal-text .highlight-red {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+        .modal-text .highlight-yellow {
+            color: #f0c674;
+            font-weight: 700;
+        }
+        .modal-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: rgba(80, 80, 80, 0.5);
+            color: #888;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: not-allowed;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        .modal-btn.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+        .modal-btn.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
+        }
+        /* 问答选项 */
+        .quiz-question {
+            font-size: 1rem;
+            color: #ff6b6b;
+            line-height: 1.7;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .quiz-option {
+            width: 100%;
+            padding: 16px 22px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            text-align: left;
+        }
+        .quiz-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.45);
+        }
+        .quiz-option.wrong {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            animation: shake 0.4s ease;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">SPW公益站</div>
+            <div class="subtitle">反重力凭证捐赠</div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">步骤 1: 登录并授权</div>
+            <button type="button" onclick="openOAuthWindow()" class="btn-primary">登录 Google 账号</button>
+        </div>
+
+        <div class="step">
+            <div class="step-title">步骤 2: 粘贴回调 URL</div>
+            <div class="step-desc">
+                请在完成Google授权后，从打开的显示<span class="highlight-red">无法访问</span>的页面的地址栏中<span class="highlight-green">完整复制整个网址</span>并粘贴到下方。
+            </div>
+            <input type="text" id="callbackUrl" class="url-input"
+                   placeholder="在此处粘贴从浏览器地址栏复制的完整网址"
+                   oninput="updateSubmitButton()">
+        </div>
+
+        <div class="step">
+            <div class="step-title">步骤 3: 提交并捐赠凭证</div>
+            <button type="button" id="submitBtn" onclick="submitCallback()" class="btn-submit">提交并捐赠生成的凭证</button>
+        </div>
+
+        <div id="resultBox" class="result-box"></div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div>正在处理...</div>
+        </div>
+    </div>
+
+    <!-- 倒计时弹窗 -->
+    <div id="countdownModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-title">操作指引</div>
+            <div class="modal-text" style="color: #f0c674; font-weight: 600;">
+                注意：必须是 Gemini Pro 的谷歌账号才能捐赠有效凭证！
+            </div>
+            <div class="modal-text">
+                接下来将跳转到 Google 登录界面，请完成登录和授权。
+            </div>
+            <div class="modal-text">
+                授权后，浏览器会打开一个网址以 <span class="highlight-blue">localhost</span> 开头的页面，该页面显示<span class="highlight-red">无法访问是正常现象</span>。
+            </div>
+            <div class="modal-text">
+                您需要做的就是：<span class="highlight-yellow">将那个无法访问的页面的网址完整复制下来</span>，然后回到本页面，粘贴到"步骤2"的输入框中。
+            </div>
+            <button id="countdownBtn" class="modal-btn" onclick="showQuiz()">请仔细阅读... (<span id="countdown">10</span>)</button>
+        </div>
+    </div>
+
+    <!-- 问答弹窗 -->
+    <div id="quizModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeQuizModal()">&times;</button>
+            <div class="modal-title">快速问答</div>
+            <div class="quiz-question">
+                当你完成登录Google账号后，发现浏览器打开了一个无法访问的页面，你应该怎么做？
+            </div>
+            <div class="quiz-options">
+                <button class="quiz-option" onclick="checkAnswer(this, false)">尝试重新开始认证流程</button>
+                <button class="quiz-option" onclick="checkAnswer(this, false)">刷新页面尝试访问</button>
+                <button class="quiz-option" onclick="checkAnswer(this, false)">到公益站帖子下求助</button>
+                <button class="quiz-option" onclick="checkAnswer(this, true)">完整复制该网页链接并回到此页面粘贴</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 错误提示弹窗 -->
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeErrorModal()">&times;</button>
+            <div class="modal-title">操作错误</div>
+            <div class="modal-text" style="color: #e74c3c;">
+                您的选择不正确，请重新仔细阅读操作指引。
+            </div>
+            <button class="modal-btn active" onclick="restartFromError()" style="margin-top: 20px;">确定</button>
+        </div>
+    </div>
+
+    <!-- 成功提示弹窗 -->
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
+            <div class="modal-title" style="color: #2ecc71;">感谢您捐赠凭证！</div>
+            <div class="modal-text">
+                您的凭证已成功添加到系统中，感谢您对公益站的支持！
+            </div>
+            <button class="modal-btn active" onclick="closeSuccessModal()" style="margin-top: 20px; background: #2ecc71;">确定</button>
+        </div>
+    </div>
+
+    <script>
+        const CLIENT_ID = '1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com';
+        const SCOPES = [
+            'https://www.googleapis.com/auth/cloud-platform',
+            'https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/cclog',
+            'https://www.googleapis.com/auth/experimentsandconfigs'
+        ].join(' ');
+
+        let oauthPort = null;
+
+        function getOAuthUrl() {
+            if (!oauthPort) oauthPort = Math.floor(Math.random() * 10000) + 50000;
+            const redirectUri = `http://localhost:${oauthPort}/oauth-callback`;
+            return `https://accounts.google.com/o/oauth2/v2/auth?` +
+                `access_type=offline&client_id=${CLIENT_ID}&prompt=consent&` +
+                `redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&` +
+                `scope=${encodeURIComponent(SCOPES)}&state=${Date.now()}`;
+        }
+
+        let countdownTimer = null;
+        let countdownValue = 10;
+
+        function openOAuthWindow() {
+            // 显示倒计时弹窗
+            showCountdownModal();
+        }
+
+        function showCountdownModal() {
+            // 清理之前的计时器
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+            // 重置oauthPort以生成新的URL
+            oauthPort = null;
+            countdownValue = 10;
+            const btn = document.getElementById('countdownBtn');
+            btn.classList.remove('active');
+            btn.innerHTML = '请仔细阅读... (<span id="countdown">10</span>)';
+            document.getElementById('countdownModal').classList.add('show');
+
+            // 开始倒计时
+            countdownTimer = setInterval(() => {
+                countdownValue--;
+                document.getElementById('countdown').textContent = countdownValue;
+                if (countdownValue <= 0) {
+                    clearInterval(countdownTimer);
+                    document.getElementById('countdownBtn').classList.add('active');
+                    document.getElementById('countdownBtn').innerHTML = '我已阅读，开始认证';
+                }
+            }, 1000);
+        }
+
+        function closeModal() {
+            if (countdownTimer) clearInterval(countdownTimer);
+            document.getElementById('countdownModal').classList.remove('show');
+        }
+
+        function showQuiz() {
+            const btn = document.getElementById('countdownBtn');
+            if (!btn.classList.contains('active')) return;
+            closeModal();
+            document.getElementById('quizModal').classList.add('show');
+        }
+
+        function closeQuizModal() {
+            document.getElementById('quizModal').classList.remove('show');
+        }
+
+        function checkAnswer(element, isCorrect) {
+            if (isCorrect) {
+                closeQuizModal();
+                // 正确答案，打开Google登录
+                window.open(getOAuthUrl(), '_blank');
+            } else {
+                // 错误答案，显示错误弹窗
+                closeQuizModal();
+                document.getElementById('errorModal').classList.add('show');
+            }
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.remove('show');
+        }
+
+        function restartFromError() {
+            closeErrorModal();
+            // 重新显示倒计时弹窗
+            showCountdownModal();
+        }
+
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.add('show');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+
+        function updateSubmitButton() {
+            const btn = document.getElementById('submitBtn');
+            const input = document.getElementById('callbackUrl').value.trim();
+            if (input) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
+        function showResult(success, message) {
+            const box = document.getElementById('resultBox');
+            box.className = 'result-box ' + (success ? 'success' : 'error');
+            box.style.display = 'block';
+            box.textContent = message;
+        }
+
+        async function submitCallback() {
+            const callbackUrl = document.getElementById('callbackUrl').value.trim();
+            if (!callbackUrl) {
+                showResult(false, '请先粘贴回调URL');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const url = new URL(callbackUrl);
+                const code = url.searchParams.get('code');
+                const port = url.port || (url.protocol === 'https:' ? '443' : '80');
+
+                if (!code) {
+                    hideLoading();
+                    showResult(false, 'URL中未找到授权码，请确保复制了完整的地址');
+                    return;
+                }
+
+                const response = await fetch('/oauth/exchange', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code, port })
+                });
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.success) {
+                    showSuccessModal();
+                    document.getElementById('callbackUrl').value = '';
+                    updateSubmitButton();
+                } else {
+                    showResult(false, '生成失败: ' + (result.message || '未知错误'));
+                }
+            } catch (error) {
+                hideLoading();
+                showResult(false, '处理失败: ' + error.message);
+            }
+        }
+
+        document.getElementById('callbackUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitCallback();
+            }
+        });
+    </script>
+</body>
+</html>

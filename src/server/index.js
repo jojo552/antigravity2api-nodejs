@@ -16,7 +16,7 @@ import { errorHandler } from '../utils/errors.js';
 import { getChunkPoolSize, clearChunkPool } from './stream.js';
 
 // 路由模块
-import adminRouter from '../routes/admin.js';
+import adminRouter, { handlePublicOAuthExchange } from '../routes/admin.js';
 import sdRouter from '../routes/sd.js';
 import openaiRouter from '../routes/openai.js';
 import geminiRouter from '../routes/gemini.js';
@@ -42,6 +42,9 @@ app.use(express.static(publicDir));
 
 // 管理路由
 app.use('/admin', adminRouter);
+
+// 公开的OAuth接口 - 不需要登录即可访问
+app.post('/oauth/exchange', handlePublicOAuthExchange);
 
 // 使用统一错误处理中间件
 app.use(errorHandler);

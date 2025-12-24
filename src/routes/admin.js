@@ -204,11 +204,11 @@ router.post('/oauth/exchange', authMiddleware, async (req, res) => {
   if (!code || !port) {
     return res.status(400).json({ success: false, message: 'code和port必填' });
   }
-  
+
   try {
     const account = await oauthManager.authenticate(code, port);
-    const message = account.hasQuota 
-      ? 'Token添加成功' 
+    const message = account.hasQuota
+      ? 'Token添加成功'
       : 'Token添加成功（该账号无资格，已自动使用随机ProjectId）';
     res.json({ success: true, data: account, message, fallbackMode: !account.hasQuota });
   } catch (error) {
@@ -216,6 +216,33 @@ router.post('/oauth/exchange', authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+// 公开的OAuth交换接口 - 用于独立的OAuth登录页面，不需要JWT认证
+export async function handlePublicOAuthExchange(req, res) {
+  const { code, port } = req.body;
+  if (!code || !port) {
+    return res.status(400).json({ success: false, message: 'code和port必填' });
+  }
+
+  try {
+    // 1. 交换Token
+    const account = await oauthManager.authenticate(code, port);
+
+    // 2. 保存Token到系统
+    const result = await tokenManager.addToken(account);
+    if (!result.success) {
+      return res.status(500).json({ success: false, message: result.message });
+    }
+
+    const message = account.hasQuota
+      ? 'Token添加成功'
+      : 'Token添加成功（该账号无资格，已自动使用随机ProjectId）';
+    res.json({ success: true, message, fallbackMode: !account.hasQuota });
+  } catch (error) {
+    logger.error('公开OAuth认证失败:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
 
 // 获取配置
 router.get('/config', authMiddleware, (req, res) => {

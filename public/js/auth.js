@@ -73,21 +73,24 @@ function showOAuthModal() {
     modal.className = 'modal form-modal';
     modal.innerHTML = `
         <div class="modal-content">
-            <div class="modal-title">🔐 OAuth授权登录</div>
+            <div class="modal-title">OAuth授权登录</div>
             <div class="oauth-steps">
-                <p><strong>📝 授权流程：</strong></p>
-                <p>1️⃣ 点击下方按钮打开Google授权页面</p>
-                <p>2️⃣ 完成授权后，复制浏览器地址栏的完整URL</p>
-                <p>3️⃣ 粘贴URL到下方输入框并提交</p>
+                <p><strong>授权流程：</strong></p>
+                <p>1. 点击下方按钮打开Google授权页面</p>
+                <p>2. 完成授权后，复制浏览器地址栏的完整URL</p>
+                <p>3. 粘贴URL到下方输入框并提交</p>
             </div>
             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <button type="button" onclick="openOAuthWindow()" class="btn btn-success" style="flex: 1;">🔐 打开授权页面</button>
-                <button type="button" onclick="copyOAuthUrl()" class="btn btn-info" style="flex: 1;">📋 复制授权链接</button>
+                <button type="button" onclick="openOAuthWindow()" class="btn btn-success" style="flex: 1;">打开授权页面</button>
+                <button type="button" onclick="copyOAuthUrl()" class="btn btn-info" style="flex: 1;">复制授权链接</button>
             </div>
             <input type="text" id="modalCallbackUrl" placeholder="粘贴完整的回调URL (http://localhost:xxxxx/oauth-callback?code=...)">
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">取消</button>
-                <button class="btn btn-success" onclick="processOAuthCallbackModal()">✅ 提交</button>
+                <button class="btn btn-success" onclick="processOAuthCallbackModal()">提交</button>
+            </div>
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color, #333); text-align: center;">
+                <a href="/oauth.html" target="_blank" style="color: var(--primary, #4f46e5); text-decoration: none; font-size: 0.9rem;">在独立页面中打开OAuth登录 (无需登录)</a>
             </div>
         </div>
     `;
