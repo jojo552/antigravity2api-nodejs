@@ -315,6 +315,61 @@ ghcr.io/liuw1535/antigravity2api-nodejs
 - 通过环境变量配置所有必要参数
 - 持久化存储确保 Token 和图片数据不丢失
 
+## 独立凭证捐赠页面
+
+如果你想让用户帮助捐赠 OAuth 凭证，可以部署一个独立的捐赠页面，与管理后台分离，保护管理接口安全。
+
+### 部署方式
+
+1. **准备两个域名**：
+   - 管理后台：`admin.example.com`（私有，仅自己访问）
+   - 捐赠页面：`donate.example.com`（公开，分享给用户）
+
+2. **配置 Nginx 反向代理**（捐赠域名）：
+
+```nginx
+# 首页重定向到捐赠页
+location = / {
+    return 301 /oauth.html;
+}
+
+# 捐赠页面
+location = /oauth.html {
+    proxy_pass http://127.0.0.1:8045;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+
+# 凭证提交 API
+location = /oauth/exchange {
+    proxy_pass http://127.0.0.1:8045;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+
+# 其他路径全部返回 404，保护管理接口
+location / {
+    return 404;
+}
+```
+
+3. **1Panel/宝塔面板配置**：
+   - 添加反向代理：代理路径 `/`，目标地址 `http://127.0.0.1:8045`
+   - 添加重定向：路径 `/` 重定向到 `/oauth.html`
+
+### 安全说明
+
+- 捐赠域名只暴露 `/oauth.html` 和 `/oauth/exchange` 两个路径
+- 用户无法访问 `/admin`、`/login` 等管理页面
+- 管理功能仅通过私有域名访问
+
+### 使用流程
+
+1. 分享捐赠页面链接给用户
+2. 用户点击「打开授权页面」完成 Google 授权
+3. 用户复制回调 URL 并粘贴到页面提交
+4. 凭证自动添加到你的 Token 池中
+
 ## Web 管理界面
 
 服务启动后，访问 `http://localhost:8045` 即可打开 Web 管理界面。
