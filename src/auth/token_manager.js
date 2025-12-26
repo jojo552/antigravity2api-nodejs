@@ -577,6 +577,9 @@ class TokenManager {
           allTokens.push(newToken);
           await this.store.writeAll(allTokens);
 
+          const identifier = tokenData.email || tokenData.access_token?.slice(-8) || 'unknown';
+          log.info(`凭证已添加: ${identifier}`);
+
           await this.reload();
           result = { success: true, message: 'Token添加成功' };
         } catch (error) {
@@ -613,13 +616,17 @@ class TokenManager {
     try {
       const allTokens = await this.store.readAll();
       
+      const tokenToDelete = allTokens.find(t => t.refresh_token === refreshToken);
       const filteredTokens = allTokens.filter(t => t.refresh_token !== refreshToken);
       if (filteredTokens.length === allTokens.length) {
         return { success: false, message: 'Token不存在' };
       }
-      
+
       await this.store.writeAll(filteredTokens);
-      
+
+      const identifier = tokenToDelete?.email || tokenToDelete?.access_token?.slice(-8) || 'unknown';
+      log.info(`凭证已删除: ${identifier}`);
+
       await this.reload();
       return { success: true, message: 'Token删除成功' };
     } catch (error) {

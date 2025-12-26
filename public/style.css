@@ -1556,3 +1556,99 @@ input:checked + .slider:before {
         font-size: 0.6rem;
     }
 }
+
+/* ========== 日志页面样式 ========== */
+.log-date-select {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--background);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    cursor: pointer;
+    min-width: 140px;
+}
+
+.log-date-select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.auto-refresh-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+.auto-refresh-label input {
+    cursor: pointer;
+}
+
+.log-content {
+    background: #1a1a2e;
+    border-radius: 8px;
+    padding: 1rem;
+    min-height: 400px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    font-family: 'Ubuntu Mono', 'Consolas', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.log-lines {
+    display: flex;
+    flex-direction: column;
+}
+
+.log-line {
+    padding: 0.15rem 0;
+    color: #c0c0c0;
+    word-break: break-all;
+    white-space: pre-wrap;
+}
+
+.log-line.log-error {
+    color: #ff6b6b;
+}
+
+.log-line.log-warn {
+    color: #ffd93d;
+}
+
+.log-line.log-info {
+    color: #6bcb77;
+}
+
+/* 日志Tab样式 */
+html.tab-logs #tokensPage { display: none !important; }
+html.tab-logs #logsPage { display: block !important; }
+html.tab-logs #settingsPage { display: none !important; }
+html.tab-logs .tab[data-tab="tokens"],
+html.tab-logs .tab[data-tab="settings"] {
+    background: transparent !important;
+    color: var(--text-light, #888) !important;
+}
+html.tab-logs .tab[data-tab="logs"] {
+    background: var(--primary, #4f46e5) !important;
+    color: white !important;
+}
+
+@media (max-width: 480px) {
+    .log-content {
+        font-size: 0.7rem;
+        padding: 0.6rem;
+        min-height: 300px;
+    }
+    .log-date-select {
+        min-width: 100px;
+        font-size: 0.75rem;
+    }
+}

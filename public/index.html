@@ -83,6 +83,7 @@ html.tab-settings .tab[data-tab="settings"] {
             <div class="header">
             <div class="tabs">
                 <button class="tab active" data-tab="tokens" onclick="switchTab('tokens')">🎯 Token</button>
+                <button class="tab" data-tab="logs" onclick="switchTab('logs')">📋 日志</button>
                 <button class="tab" data-tab="settings" onclick="switchTab('settings')">⚙️ 设置</button>
             </div>
                 <div class="header-right">
@@ -122,6 +123,30 @@ html.tab-settings .tab[data-tab="settings"] {
                             <div class="empty-state-icon">📦</div>
                             <div class="empty-state-text">暂无Token</div>
                             <div class="empty-state-hint">点击上方OAuth按钮添加Token</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 日志页面 -->
+                <div id="logsPage" class="hidden">
+                    <div class="top-bar">
+                        <div class="stats-inline">
+                            <select id="logDateSelect" onchange="loadLogs()" class="log-date-select">
+                                <option value="today">今日日志</option>
+                            </select>
+                        </div>
+                        <div class="action-btns">
+                            <button type="button" onclick="loadLogs()" class="btn btn-warning btn-sm">🔄 刷新</button>
+                            <label class="auto-refresh-label">
+                                <input type="checkbox" id="autoRefreshLogs" onchange="toggleAutoRefresh()">
+                                <span>自动刷新</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="logContent" class="log-content">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <div class="empty-state-text">加载中...</div>
                         </div>
                     </div>
                 </div>
@@ -297,6 +322,7 @@ html.tab-settings .tab[data-tab="settings"] {
     <script src="js/auth.js" defer></script>
     <script src="js/quota.js" defer></script>
     <script src="js/tokens.js" defer></script>
+    <script src="js/logs.js" defer></script>
     <script src="js/config.js" defer></script>
     <script src="js/main.js" defer></script>
 </body>

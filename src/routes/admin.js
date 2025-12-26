@@ -4,7 +4,7 @@ import tokenManager from '../auth/token_manager.js';
 import quotaManager from '../auth/quota_manager.js';
 import oauthManager from '../auth/oauth_manager.js';
 import config, { getConfigJson, saveConfigJson } from '../config/config.js';
-import logger from '../utils/logger.js';
+import logger, { readLogs, getLogFiles } from '../utils/logger.js';
 import { parseEnvFile, updateEnvFile } from '../utils/envParser.js';
 import { reloadConfig } from '../utils/configReloader.js';
 import { deepMerge } from '../utils/deepMerge.js';
@@ -376,6 +376,33 @@ router.get('/tokens/:refreshToken/quotas', authMiddleware, async (req, res) => {
     logger.error('获取额度失败:', error.message);
     res.status(500).json({ success: false, message: error.message });
   }
+});
+
+// 获取日志文件列表
+router.get('/logs', authMiddleware, (req, res) => {
+  const result = getLogFiles();
+  res.json(result);
+});
+
+// 获取指定日期的日志内容
+router.get('/logs/:date', authMiddleware, (req, res) => {
+  const { date } = req.params;
+  const lines = parseInt(req.query.lines) || 500;
+
+  // 验证日期格式 YYYY-MM-DD
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res.status(400).json({ success: false, message: '日期格式错误，应为 YYYY-MM-DD' });
+  }
+
+  const result = readLogs(date, lines);
+  res.json(result);
+});
+
+// 获取今日日志
+router.get('/logs/today', authMiddleware, (req, res) => {
+  const lines = parseInt(req.query.lines) || 500;
+  const result = readLogs(null, lines);
+  res.json(result);
 });
 
 export default router;

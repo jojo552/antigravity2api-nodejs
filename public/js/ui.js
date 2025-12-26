@@ -62,36 +62,46 @@ function hideLoading() {
 
 function switchTab(tab, saveState = true) {
     // 更新html元素的class以防止闪烁
+    document.documentElement.classList.remove('tab-settings', 'tab-logs');
     if (tab === 'settings') {
         document.documentElement.classList.add('tab-settings');
-    } else {
-        document.documentElement.classList.remove('tab-settings');
+    } else if (tab === 'logs') {
+        document.documentElement.classList.add('tab-logs');
     }
-    
+
     // 移除所有tab的active状态
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    
+
     // 找到对应的tab按钮并激活
     const targetTab = document.querySelector(`.tab[data-tab="${tab}"]`);
     if (targetTab) {
         targetTab.classList.add('active');
     }
-    
+
     const tokensPage = document.getElementById('tokensPage');
+    const logsPage = document.getElementById('logsPage');
     const settingsPage = document.getElementById('settingsPage');
-    
+
     // 隐藏所有页面并移除动画类
     tokensPage.classList.add('hidden');
     tokensPage.classList.remove('page-enter');
+    logsPage.classList.add('hidden');
+    logsPage.classList.remove('page-enter');
     settingsPage.classList.add('hidden');
     settingsPage.classList.remove('page-enter');
-    
+
     // 显示对应页面并添加入场动画
     if (tab === 'tokens') {
         tokensPage.classList.remove('hidden');
         // 触发重排以重新播放动画
         void tokensPage.offsetWidth;
         tokensPage.classList.add('page-enter');
+    } else if (tab === 'logs') {
+        logsPage.classList.remove('hidden');
+        void logsPage.offsetWidth;
+        logsPage.classList.add('page-enter');
+        loadLogDates();
+        loadLogs();
     } else if (tab === 'settings') {
         settingsPage.classList.remove('hidden');
         // 触发重排以重新播放动画
@@ -99,7 +109,7 @@ function switchTab(tab, saveState = true) {
         settingsPage.classList.add('page-enter');
         loadConfig();
     }
-    
+
     // 保存当前Tab状态到localStorage
     if (saveState) {
         localStorage.setItem('currentTab', tab);
@@ -109,7 +119,7 @@ function switchTab(tab, saveState = true) {
 // 恢复Tab状态
 function restoreTabState() {
     const savedTab = localStorage.getItem('currentTab');
-    if (savedTab && (savedTab === 'tokens' || savedTab === 'settings')) {
+    if (savedTab && ['tokens', 'logs', 'settings'].includes(savedTab)) {
         switchTab(savedTab, false);
     }
 }
