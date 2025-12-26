@@ -66,29 +66,34 @@ function cleanOldLogs() {
 }
 
 // 读取日志文件（供API使用）
+// 默认只显示凭证操作日志
 export function readLogs(date = null, lines = 500) {
   try {
     ensureLogDir();
 
+    let filePath;
     if (date) {
-      // 读取指定日期的日志
-      const filePath = path.join(LOG_DIR, `${date}.log`);
+      filePath = path.join(LOG_DIR, `${date}.log`);
       if (!fs.existsSync(filePath)) {
-        return { success: true, data: [], message: '该日期无日志' };
+        return { success: true, data: [], message: '该日期无操作记录' };
       }
-      const content = fs.readFileSync(filePath, 'utf-8');
-      const logLines = content.trim().split('\n').slice(-Math.min(lines, MAX_LOG_LINES));
-      return { success: true, data: logLines };
     } else {
-      // 读取今天的日志
-      const filePath = getLogFilePath();
+      filePath = getLogFilePath();
       if (!fs.existsSync(filePath)) {
-        return { success: true, data: [], message: '今日暂无日志' };
+        return { success: true, data: [], message: '今日暂无操作记录' };
       }
-      const content = fs.readFileSync(filePath, 'utf-8');
-      const logLines = content.trim().split('\n').slice(-Math.min(lines, MAX_LOG_LINES));
-      return { success: true, data: logLines };
     }
+
+    const content = fs.readFileSync(filePath, 'utf-8');
+    let logLines = content.trim().split('\n');
+
+    // 只显示凭证操作日志
+    logLines = logLines.filter(line =>
+      line.includes('凭证已添加') || line.includes('凭证已删除')
+    );
+
+    logLines = logLines.slice(-Math.min(lines, MAX_LOG_LINES));
+    return { success: true, data: logLines, message: logLines.length === 0 ? '暂无操作记录' : '' };
   } catch (error) {
     return { success: false, message: error.message };
   }
