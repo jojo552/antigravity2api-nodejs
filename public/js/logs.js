@@ -5,7 +5,10 @@ let autoRefreshInterval = null;
 // 加载日志日期列表
 async function loadLogDates() {
     try {
-        const res = await fetchWithAuth('/admin/logs');
+        const authToken = localStorage.getItem('authToken');
+        const res = await fetch('/admin/logs', {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
         const data = await res.json();
 
         if (data.success && data.data) {
@@ -40,8 +43,11 @@ async function loadLogs() {
     const date = select.value;
 
     try {
+        const authToken = localStorage.getItem('authToken');
         const url = date === 'today' ? '/admin/logs/today' : `/admin/logs/${date}`;
-        const res = await fetchWithAuth(url);
+        const res = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
         const data = await res.json();
 
         if (data.success) {
