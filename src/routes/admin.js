@@ -384,6 +384,13 @@ router.get('/logs', authMiddleware, (req, res) => {
   res.json(result);
 });
 
+// 获取今日日志 - 必须在 :date 之前定义
+router.get('/logs/today', authMiddleware, (req, res) => {
+  const lines = parseInt(req.query.lines) || 500;
+  const result = readLogs(null, lines);
+  res.json(result);
+});
+
 // 获取指定日期的日志内容
 router.get('/logs/:date', authMiddleware, (req, res) => {
   const { date } = req.params;
@@ -395,13 +402,6 @@ router.get('/logs/:date', authMiddleware, (req, res) => {
   }
 
   const result = readLogs(date, lines);
-  res.json(result);
-});
-
-// 获取今日日志
-router.get('/logs/today', authMiddleware, (req, res) => {
-  const lines = parseInt(req.query.lines) || 500;
-  const result = readLogs(null, lines);
   res.json(result);
 });
 
