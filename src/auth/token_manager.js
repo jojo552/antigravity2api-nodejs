@@ -49,6 +49,10 @@ class TokenManager {
 
     /** @type {Promise<void>|null} */
     this._initPromise = null;
+
+    // 写操作队列锁，防止并发写入导致数据丢失
+    /** @type {Promise<void>} */
+    this._writeQueue = Promise.resolve();
   }
 
   async _initialize() {
@@ -544,36 +548,45 @@ class TokenManager {
   }
 
   async addToken(tokenData) {
-    try {
-      const allTokens = await this.store.readAll();
-      
-      const newToken = {
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
-        expires_in: tokenData.expires_in || 3599,
-        timestamp: tokenData.timestamp || Date.now(),
-        enable: tokenData.enable !== undefined ? tokenData.enable : true
-      };
-      
-      if (tokenData.projectId) {
-        newToken.projectId = tokenData.projectId;
-      }
-      if (tokenData.email) {
-        newToken.email = tokenData.email;
-      }
-      if (tokenData.hasQuota !== undefined) {
-        newToken.hasQuota = tokenData.hasQuota;
-      }
-      
-      allTokens.push(newToken);
-      await this.store.writeAll(allTokens);
-      
-      await this.reload();
-      return { success: true, message: 'Token添加成功' };
-    } catch (error) {
-      log.error('添加Token失败:', error.message);
-      return { success: false, message: error.message };
-    }
+    let result;
+
+    this._writeQueue = this._writeQueue
+      .catch(() => {}) // 隔离之前的错误，防止阻塞后续操作
+      .then(async () => {
+        try {
+          const allTokens = await this.store.readAll();
+
+          const newToken = {
+            access_token: tokenData.access_token,
+            refresh_token: tokenData.refresh_token,
+            expires_in: tokenData.expires_in || 3599,
+            timestamp: tokenData.timestamp || Date.now(),
+            enable: tokenData.enable !== undefined ? tokenData.enable : true
+          };
+
+          if (tokenData.projectId) {
+            newToken.projectId = tokenData.projectId;
+          }
+          if (tokenData.email) {
+            newToken.email = tokenData.email;
+          }
+          if (tokenData.hasQuota !== undefined) {
+            newToken.hasQuota = tokenData.hasQuota;
+          }
+
+          allTokens.push(newToken);
+          await this.store.writeAll(allTokens);
+
+          await this.reload();
+          result = { success: true, message: 'Token添加成功' };
+        } catch (error) {
+          log.error('添加Token失败:', error.message);
+          result = { success: false, message: error.message };
+        }
+      });
+
+    await this._writeQueue;
+    return result;
   }
 
   async updateToken(refreshToken, updates) {
