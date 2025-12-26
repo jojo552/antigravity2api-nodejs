@@ -269,7 +269,7 @@ docker logs -f antigravity2api
 在 Zeabur 控制台创建新服务，使用以下镜像：
 
 ```
-ghcr.io/liuw1535/antigravity2api-nodejs
+ghcr.io/jojo552/antigravity2api-nodejs:main
 ```
 
 2. **配置环境变量**
